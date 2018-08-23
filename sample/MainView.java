@@ -1,6 +1,7 @@
 package sample;
 
 import com.iflytek.cloud.speech.*;
+import javafx.geometry.Pos;
 import org.json.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -19,11 +20,10 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 
-    public class MainView extends Application {
-
+public class MainView extends Application {
     private Scene mScene;
-    public TextField textFieldValue;
-    public Label statusLabel;
+    private TextField textFieldValue;
+    private Label statusLabel;
 
     public SpeechRecognizer mIat;
     public RecognizerListener mRecognizerListener;
@@ -33,6 +33,7 @@ import javafx.stage.Stage;
         Button startBtn=new Button();
         Button stopBtn=new Button();
         Button exitBtn=new Button();
+        Button cancelBtn=new Button();
         Label titleLabel=new Label();
         this.statusLabel = new Label();
         this.textFieldValue=new TextField();
@@ -41,25 +42,53 @@ import javafx.stage.Stage;
         HBox hb2=new HBox();
         HBox hb3=new HBox();
         HBox hb4=new HBox();
-        titleLabel.setText("This speech to string");
+        titleLabel.setText("This is a program for speech-to-text");
+
         startBtn.setText("Start");
         startBtn.setOnAction((ActionEvent e)->{
             mIat.startListening(mRecognizerListener);
             startBtn.setDisable(true);
             stopBtn.setDisable(false);
+            cancelBtn.setDisable(false);
+            statusLabel.setText("Start listening");
         });
+
         stopBtn.setText("Stop");
         stopBtn.setDisable(true);
         stopBtn.setOnAction((ActionEvent e)->{
             mIat.stopListening();
             startBtn.setDisable(false);
             stopBtn.setDisable(true);
+            cancelBtn.setDisable(true);
+            statusLabel.setText("Stop listening");
         });
+
+        exitBtn.setText("Exit");
+        exitBtn.setOnAction((ActionEvent e)->{
+            Platform.exit();
+        });
+
+        cancelBtn.setText("Cancel");
+        cancelBtn.setDisable(true);
+        cancelBtn.setOnAction((ActionEvent e)->{
+            mIat.cancel();
+            startBtn.setDisable(false);
+            stopBtn.setDisable(true);
+            cancelBtn.setDisable(true);
+            statusLabel.setText("Cancel listening");
+        });
+
         textFieldValue.setText("Speech to Text Area!");
+        textFieldValue.setPrefSize(380,100);
+        textFieldValue.setAlignment(Pos.TOP_LEFT);
+
         statusLabel.setText("Status area");
+
         hb1.getChildren().add(titleLabel);
         hb2.getChildren().add(startBtn);
         hb2.getChildren().add(stopBtn);
+        hb2.getChildren().add(cancelBtn);
+        hb2.getChildren().add(exitBtn);
         hb3.getChildren().add(textFieldValue);
         hb4.getChildren().add(statusLabel);
         vb.getChildren().add(hb1);
@@ -90,16 +119,13 @@ import javafx.stage.Stage;
             }
             public void onBeginOfSpeech(){
                 System.out.println("Start listener");
-                //statusLabel.setText("Start listening");
             }
             public void onVolumeChanged(int volume){
-                //statusLabel.setText("VOLUME: "+volume);
                 if(volume<0)    volume=0;
                 else if(volume>15) volume=15;
             }
             public void onEndOfSpeech(){
                 System.out.println("End of Listener");
-                //statusLabel.setText("End of listening");
             }
             public void onError(SpeechError error){
                 System.out.println(error.getErrorDescription(true));
@@ -113,7 +139,7 @@ import javafx.stage.Stage;
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("SpeechMainView");
-        primaryStage.setWidth(200);
+        primaryStage.setWidth(400);
         primaryStage.setHeight(300);
         primaryStage.setResizable(false);
         primaryStage.setScene(this.mScene);
